@@ -1,0 +1,25 @@
+{
+  "name": "Botera",
+  "version": "v1.0.0",
+  "type": "module",
+  "main": "y",
+  "author": "Akil Saiyad",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "NODE_ENV=production sh run.sh",
+    "dev": "NODE_ENV=development sh run.sh",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.4.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2"
+  }
+}
