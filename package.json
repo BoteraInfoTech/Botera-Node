@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=production sh run.sh",
+    "start": "NODE_ENV=production node scripts/run.js",
     "dev": "NODE_ENV=development sh run.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
