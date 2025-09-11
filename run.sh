@@ -63,7 +63,7 @@ select_option "${options[@]}"
 choice=$?
 update_env_variable ".env.${NODE_ENV}" "SERVICE" "${options[$choice]}"
 if [[ "$NODE_ENV" == "production" ]]; then
-    node scripts/run.js
+    NODE_OPTIONS=--experimental-specifier-resolution=node node scripts/run.js
 else
-    nodemon scripts/run.js
+    NODE_OPTIONS=--experimental-specifier-resolution=node nodemon scripts/run.js
 fi
