@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "NODE_ENV=production NODE_OPTIONS=--experimental-specifier-resolution=node node scripts/run.js",
+    "start": "NODE_ENV=production node --import ./loader/loader-register.js scripts/run.js",
     "dev": "NODE_ENV=development sh run.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -20,6 +20,14 @@
     "prettier": "^3.6.2"
   },
   "dependencies": {
-    "dotenv": "^17.2.2"
+    "body-parser": "^2.2.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "response-time": "^2.3.4",
+    "zlib": "^1.0.5"
   }
 }

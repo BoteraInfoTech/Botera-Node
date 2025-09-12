@@ -1,16 +1,15 @@
 import http from 'http';
+import app from './app';
 
-const PORT = process.env.PORT || '3000';
+const PORT = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
-  // Set the response header
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
+const server = http.createServer(app);
 
-  // Send response body
-  res.end('Hello, World!\n');
-});
-
-// Start the server
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+server.listen(PORT, (err) => {
+  if (err) {
+    console.error('Error occurred on starting the server');
+    console.error(err);
+    return;
+  }
+  console.log(`🚀 Server running successfully on port: ${PORT}`);
 });
