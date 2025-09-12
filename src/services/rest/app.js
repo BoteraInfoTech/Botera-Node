@@ -8,12 +8,8 @@ import responseTime from 'response-time';
 import zlib from 'zlib';
 import registerRoutes from './router/index';
 import '../../mongoDB/index';
-import errorHandler from './error';
 
 const app = express();
-
-// Set up error handler
-app.use(errorHandler);
 
 // Add middlewares
 app.use(responseTime());
@@ -29,6 +25,7 @@ app.use((err, req, res, next) => {
   }
   next();
 });
+
 app.use(
   compression({
     filter: (req, res) => {

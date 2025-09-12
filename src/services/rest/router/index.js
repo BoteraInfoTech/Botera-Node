@@ -1,9 +1,13 @@
 import openPoints from './openEndPoints';
+import user from './user';
 
-const allValidRoutes = [openPoints];
+const allValidRoutes = {
+  '/': openPoints,
+  '/user': user,
+};
 
 export default (app) => {
-  allValidRoutes.forEach((router) => {
-    app.use(router);
+  Object.keys(allValidRoutes).forEach((prefix) => {
+    app.use(prefix, allValidRoutes[prefix]);
   });
 };

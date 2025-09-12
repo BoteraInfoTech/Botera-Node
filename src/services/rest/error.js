@@ -1,3 +1,5 @@
+import Bluebird from 'bluebird';
+
 export const formatError = (err) => {
   if (err.status && err.status < 500) {
     return {
@@ -13,12 +15,30 @@ export const formatError = (err) => {
   };
 };
 
-export default (err, req, res) => {
-  const { status, message, reasons } = formatError(err);
+export const validatorError = (validators) => {
+  return async (req, res, next) => {
+    const errors = [];
+    await Bluebird.mapSeries(validators, async (validator) => {
+      const result = await validator(req); // pass req if validator needs it
+      if (result) {
+        errors.push(result);
+      }
+    });
 
-  res.status(status).json({
-    success: false,
+    if (errors.length) {
+      return res.status(400).send({
+        msg: 'Validation failed',
+        reason: errors,
+      });
+    }
+
+    next();
+  };
+};
+
+export const err = (message, symbol) => {
+  return {
     message,
-    ...(reasons ? { reasons } : {}),
-  });
+    field: symbol,
+  };
 };
