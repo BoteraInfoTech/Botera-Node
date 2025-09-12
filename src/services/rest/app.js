@@ -7,11 +7,13 @@ import morgan from 'morgan';
 import responseTime from 'response-time';
 import zlib from 'zlib';
 import registerRoutes from './router/index';
+import '../../mongoDB/index';
+import errorHandler from './error';
 
 const app = express();
 
 // Set up error handler
-registerRoutes(app);
+app.use(errorHandler);
 
 // Add middlewares
 app.use(responseTime());
@@ -40,5 +42,6 @@ app.use(
   })
 );
 // Setup REST APIs
+registerRoutes(app);
 
 export default app;
