@@ -68,7 +68,10 @@ export const isPhoneNumberValid = (req) => {
 };
 
 export const getUserLocation = async (req) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ipLocation =
+    req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';
+  const allIps = ipLocation.split(',');
+  const ip = allIps.find((ip) => ip);
   const location = await getUserIPLocation(ip);
   setData(req, {
     ip,
