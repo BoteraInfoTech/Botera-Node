@@ -13,7 +13,8 @@ function transformKeys(obj) {
 }
 
 export const sendAnonymousPosthogEvent = async (
-  userEmail,
+  event,
+  userId,
   userProperties,
   data
 ) => {
@@ -23,8 +24,8 @@ export const sendAnonymousPosthogEvent = async (
   };
   const payload = {
     api_key: 'phc_r5VLPCN8IQE1IbD3oByCahaX4VaEl7qjtUuVqAJTvul',
-    event: 'event name',
-    distinct_id: userEmail,
+    event,
+    distinct_id: userId,
     properties: {
       $set: {
         ...userProperties,

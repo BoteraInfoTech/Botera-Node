@@ -18,10 +18,12 @@ export const formatError = (err) => {
 export const validatorError = (validators) => {
   return async (req, res, next) => {
     const errors = [];
+    let havePrevError = false;
     await Bluebird.mapSeries(validators, async (validator) => {
-      const result = await validator(req); // pass req if validator needs it
+      const result = await validator(req, havePrevError); // pass req if validator needs it
       if (result) {
         errors.push(result);
+        havePrevError = true;
       }
     });
 

@@ -6,7 +6,11 @@ import {
   isPhoneNumberValid,
   decidePromotedCredits,
   getUserLocation,
+  isBlockedRegion,
+  isUserExist,
+  isValidCredentials,
 } from '../validator/user';
+import { createUser, login } from '../controller/user';
 
 const router = express.Router();
 
@@ -18,10 +22,11 @@ router.post(
     isPhoneNumberValid,
     decidePromotedCredits,
     getUserLocation,
+    isBlockedRegion,
   ]),
-  (req, res) => {
-    res.send({ data: req.validData });
-  }
+  createUser
 );
+
+router.post('/login', validatorError([isUserExist, isValidCredentials]), login);
 
 export default router;
