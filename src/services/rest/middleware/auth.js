@@ -18,8 +18,14 @@ export default (roles = []) =>
 
     //token validation
     const { jwtSecrete } = config.passManager;
-    const userInfo = jwt.verify(token, jwtSecrete);
-    if (!userInfo) return res.status(401).json({ error: 'Invalid User' });
+    let userInfo;
+    try {
+      userInfo = jwt.verify(token, jwtSecrete);
+      if (!userInfo) return res.status(401).json({ error: 'Invalid User' });
+    } catch (error) {
+      console.log({ error });
+      return res.status(401).json({ error: 'Invalid User' });
+    }
 
     // get User data from DB
     const { id: userId } = userInfo;
