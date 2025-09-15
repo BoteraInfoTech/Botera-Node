@@ -3,8 +3,9 @@ import config from '../../../config';
 import { err } from '../error';
 import { createSalt, hashPassword, verifyPassword } from '../utils/passManager';
 import { getUserIPLocation } from '../../../utils/getIPLocation';
+import countryLanguages from '../../../utils/language';
 import MongoDB from '../../../mongoDB';
-import { findUserByCondition } from '../../../mongoDB/queries/user';
+import * as userQueries from '../../../mongoDB/queries/user';
 
 const setData = (req, data) => {
   if (req.validData) {
@@ -17,7 +18,7 @@ const setData = (req, data) => {
 };
 
 export const isValidEmail = async (req) => {
-  const { email = '' } = req.body;
+  const { email = '' } = req.body || {};
   if (!email) return err('Email is required', 'email');
 
   const isValidEmailFormat = validator.isEmail(email);
@@ -28,7 +29,7 @@ export const isValidEmail = async (req) => {
     all_lowercase: true,
   });
 
-  const userExist = await findUserByCondition(MongoDB, {
+  const userExist = await userQueries.findUserByCondition(MongoDB, {
     email: normalizeEmail,
   });
   if (userExist) return err('Email already Registered', 'email');
@@ -91,7 +92,7 @@ export const getUserLocation = async (req) => {
 };
 
 export const isBlockedRegion = async (req) => {
-  const { country } = req.validData;
+  const { country } = req.validData || req.body || {};
   const blockCountries = ['israel'];
   if (blockCountries.includes(country.toLowerCase()))
     return err('Your are not eligible Please contactSupport', 'country');
@@ -104,7 +105,7 @@ export const isUserExist = async (req) => {
     gmail_remove_dots: true,
     all_lowercase: true,
   });
-  const userData = await findUserByCondition(
+  const userData = await userQueries.findUserByCondition(
     MongoDB,
     {
       email: normalizeEmail,
@@ -118,9 +119,34 @@ export const isUserExist = async (req) => {
 export const isValidCredentials = async (req, haveError) => {
   if (haveError) return null;
   const { password } = req.body;
-  const { userData } = req.validData;
+  const { userData } = req.validData || {};
   const { password: originalPassword, salt } = userData;
   const isValidPassword = verifyPassword(password, salt, originalPassword);
   if (!isValidPassword) return err('Invalid Credential', 'password');
+  return null;
+};
+
+export const isLanguageValid = (req, haveError) => {
+  if (haveError) return null;
+  let { language } = req.body;
+  if (!language) {
+    const { country } = req.validData || {};
+    const newLanguage = countryLanguages[country] || 'English';
+    setData(req, { language: newLanguage });
+  } else {
+    const allLanguages = Object.values(countryLanguages);
+    if (!allLanguages.includes(language))
+      return err('Invalid Language Selection', 'language');
+    setData(req, { language });
+  }
+  return null;
+};
+
+export const isValidTimeZone = (req) => {
+  const { timeZone } = req.body;
+  const allTimeZone = Intl.supportedValuesOf('timeZone');
+  if (!allTimeZone.includes(timeZone))
+    return err('Invalid TimeZone', 'timezone');
+  setData(req, { timeZone });
   return null;
 };
