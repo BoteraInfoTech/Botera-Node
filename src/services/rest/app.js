@@ -6,16 +6,25 @@ import cors from 'cors';
 import morgan from 'morgan';
 import responseTime from 'response-time';
 import zlib from 'zlib';
+import cookieParser from 'cookie-parser';
 import registerRoutes from './router/index';
 import '../../mongoDB/index';
 
 const app = express();
 
+const allowedOrigins = process.env.F_END;
+
 // Add middlewares
 app.use(responseTime());
 app.use(morgan('dev'));
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+app.use(cookieParser()); // Parse cookies
 app.use(bodyParser.json()); // Parse JSON
 app.use(bodyParser.text()); // Parse plain text
 app.use(bodyParser.urlencoded({ extended: true })); // Parse form data

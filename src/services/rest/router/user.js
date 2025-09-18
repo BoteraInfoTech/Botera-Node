@@ -27,7 +27,7 @@ const router = express.Router();
 
 // open Endpoints
 router.post(
-  '/singUp',
+  '/signUp',
   validatorError([
     isValidEmail,
     isValidPassword,

@@ -54,8 +54,10 @@ export const createUser = async (req, res) => {
   // set Refresh token to Http Cookies
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
   });
 
   res.send({
@@ -87,9 +89,12 @@ export const login = async (req, res) => {
   // set Refresh token to Http Cookies
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'strict',
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
   });
+
   res.send({
     message: 'User login Successfully',
     accessToken,
@@ -112,6 +117,9 @@ export const getUserDetail = async (req, res) => {
 
 export const refreshToken = (req, res) => {
   const token = (req.cookies && req.cookies.refreshToken) || req.body.token;
+
+  console.log({ cookies: req.cookies });
+
   if (!token)
     return res.status(401).json({ error: 'Re-Authentication required' });
 

@@ -101,6 +101,7 @@ export const isBlockedRegion = async (req) => {
 
 export const isUserExist = async (req) => {
   const { email } = req.body;
+  if (!email) return err('username Not Found', 'email');
   const normalizeEmail = validator.normalizeEmail(email, {
     gmail_remove_dots: true,
     all_lowercase: true,
