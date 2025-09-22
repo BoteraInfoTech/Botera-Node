@@ -17,6 +17,14 @@ const setData = (req, data) => {
   }
 };
 
+export const isValidName = (req) => {
+  const { firstName = '' } = req;
+  if (firstName && typeof firstName !== 'string') {
+    return err('Invalid Name', 'firstName');
+  }
+  setData(req, { name: firstName });
+};
+
 export const isValidEmail = async (req) => {
   const { email = '' } = req.body || {};
   if (!email) return err('Email is required', 'email');

@@ -64,17 +64,19 @@ export const getTaskDetails = async (req, res) => {
   await Bluebird.map(tasks, (taskKey) => {
     switch (taskKey) {
       case 'reconnect': {
-        const numAccount = 2;
+        const numAccount = 0;
         result[taskKey] = numAccount;
         break;
       }
       case 'credits': {
-        const numCredit = 2;
+        const userData = req.userData;
+        const value = userData.totalCredit || 0;
+        const numCredit = value;
         result[taskKey] = numCredit;
         break;
       }
       case 'knowledge': {
-        const numAccount = 2;
+        const numAccount = true;
         result[taskKey] = numAccount;
         break;
       }
@@ -115,11 +117,11 @@ export const getWeeklyData = async (req, res) => {
 
 export const getRecentConversation = async (req, res) => {
   const result = [
-    { id: 1, name: 'Anna Jones', status: 'Auto-replied' },
-    { id: 2, name: 'David Smith', status: 'Pending' },
-    { id: 3, name: 'Sarah Johnson', status: 'Pending' },
-    { id: 4, name: 'John Doe', status: 'Auto-replied' },
-    { id: 5, name: 'Emily Davis', status: 'Failed' },
+    // { id: 1, name: 'Anna Jones', status: 'Auto-replied' },
+    // { id: 2, name: 'David Smith', status: 'Pending' },
+    // { id: 3, name: 'Sarah Johnson', status: 'Pending' },
+    // { id: 4, name: 'John Doe', status: 'Auto-replied' },
+    // { id: 5, name: 'Emily Davis', status: 'Failed' },
   ];
 
   res.send({

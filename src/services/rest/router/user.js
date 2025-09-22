@@ -12,6 +12,7 @@ import {
   isValidCredentials,
   isLanguageValid,
   isValidTimeZone,
+  isValidName,
 } from '../validator/user';
 import {
   createUser,
@@ -30,6 +31,7 @@ router.post(
   '/signUp',
   validatorError([
     isValidEmail,
+    isValidName,
     isValidPassword,
     isPhoneNumberValid,
     decidePromotedCredits,
