@@ -34,7 +34,14 @@ export default (roles = []) =>
       {
         userId,
       },
-      { password: 0, salt: 0, createdAt: 0, lastLoginAt: 0 }
+      {
+        password: 0,
+        salt: 0,
+        createdAt: 0,
+        lastLoginAt: 0,
+        ip: 0,
+        isEmailVerified: 0,
+      }
     );
     if (!userData) res.status(401).json({ error: 'User Not Found' });
 

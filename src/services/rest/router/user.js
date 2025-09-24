@@ -13,6 +13,10 @@ import {
   isLanguageValid,
   isValidTimeZone,
   isValidName,
+  isPasswordMatch,
+  isValidDateFormate,
+  isValidTimeFormate,
+  isValidMode,
 } from '../validator/user';
 import {
   createUser,
@@ -57,11 +61,14 @@ router.put(
   auth(['O']),
   validatorError([
     isValidEmail,
-    isValidPassword,
-    isPhoneNumberValid,
-    isBlockedRegion,
+    isUserExist,
+    isValidName,
     isLanguageValid,
     isValidTimeZone,
+    isPasswordMatch,
+    isValidDateFormate,
+    isValidTimeFormate,
+    isValidMode,
   ]),
   updateUser
 );

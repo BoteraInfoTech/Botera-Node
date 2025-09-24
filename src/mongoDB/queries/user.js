@@ -16,8 +16,8 @@ export const findUserByCondition = (mongoDB, condition, projection) =>
 export const updateUserByCondition = (
   mongoDB,
   condition,
-  setData,
-  unsetData
+  setData = {},
+  unsetData = {}
 ) => {
   const update = {};
   if (Object.keys(setData).length) {

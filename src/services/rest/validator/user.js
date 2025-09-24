@@ -18,7 +18,11 @@ const setData = (req, data) => {
 };
 
 export const isValidName = (req) => {
-  const { firstName = '' } = req;
+  let { firstName = '', fullName } = req.body;
+
+  if (!firstName && fullName) {
+    firstName = fullName;
+  }
   if (firstName && typeof firstName !== 'string') {
     return err('Invalid Name', 'firstName');
   }
@@ -27,6 +31,8 @@ export const isValidName = (req) => {
 
 export const isValidEmail = async (req) => {
   const { email = '' } = req.body || {};
+  const fromUpdate = req.url === '/update';
+
   if (!email) return err('Email is required', 'email');
 
   const isValidEmailFormat = validator.isEmail(email);
@@ -36,6 +42,11 @@ export const isValidEmail = async (req) => {
     gmail_remove_dots: true,
     all_lowercase: true,
   });
+
+  if (fromUpdate) {
+    setData(req, { email: normalizeEmail });
+    return null;
+  }
 
   const userExist = await userQueries.findUserByCondition(MongoDB, {
     email: normalizeEmail,
@@ -56,6 +67,33 @@ export const isValidPassword = (req) => {
 
   const { hash: encodePassword, salt: newSalt } = hashPassword(
     password,
+    createSalt(slat)
+  );
+  setData(req, { password: encodePassword, salt: newSalt });
+  return null;
+};
+
+export const isPasswordMatch = (req) => {
+  const slat = config.passManager.salt;
+  const { currentPassword = '', newPassword = '' } = req.body;
+  const { userData } = req.validData;
+  if (!(currentPassword || newPassword)) return null;
+
+  const { password: originalPassword, salt } = userData;
+  const isValidPassword = verifyPassword(
+    currentPassword,
+    salt,
+    originalPassword
+  );
+
+  if (!isValidPassword)
+    return err('Wrong Password! please conform Current Password ', 'password');
+
+  const isStrongPass = validator.isStrongPassword(newPassword);
+  if (!isStrongPass) return err('new Password must be a strong', 'password');
+
+  const { hash: encodePassword, salt: newSalt } = hashPassword(
+    newPassword,
     createSalt(slat)
   );
   setData(req, { password: encodePassword, salt: newSalt });
@@ -109,7 +147,7 @@ export const isBlockedRegion = async (req) => {
 
 export const isUserExist = async (req) => {
   const { email } = req.body;
-  if (!email) return err('username Not Found', 'email');
+  if (!email) return err('user Not Found', 'email');
   const normalizeEmail = validator.normalizeEmail(email, {
     gmail_remove_dots: true,
     all_lowercase: true,
@@ -157,5 +195,38 @@ export const isValidTimeZone = (req) => {
   if (!allTimeZone.includes(timeZone))
     return err('Invalid TimeZone', 'timezone');
   setData(req, { timeZone });
+  return null;
+};
+
+export const isValidDateFormate = (req) => {
+  const { dateFormate } = req.body;
+  const validDateFormate = [
+    'DD-MM-YYYY',
+    'MM-DD-YYYY',
+    'YYYY-MM-DD',
+    'DD MMM YYYY',
+    'MMM DD, YYYY',
+  ];
+  if (!validDateFormate.includes(dateFormate))
+    return err('Invalid Date Formate Selected', 'dateFormate');
+  setData(req, { dateFormate });
+  return null;
+};
+
+export const isValidTimeFormate = (req) => {
+  const { timeFormate } = req.body;
+  const validDateFormate = ['12', '24'];
+  if (!validDateFormate.includes(timeFormate))
+    return err('Invalid Time Formate Selected', 'timeFormate');
+  setData(req, { timeFormate });
+  return null;
+};
+
+export const isValidMode = (req) => {
+  const { mode } = req.body;
+  const validMode = ['L', 'D'];
+  if (!validMode.includes(mode))
+    return err('Invalid Time Formate Selected', 'timeFormate');
+  setData(req, { mode });
   return null;
 };

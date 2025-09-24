@@ -15,15 +15,14 @@ export const createUser = async (req, res) => {
   const userData = {
     ...req.validData,
     userId: v4(),
-    language: 'us-en',
     role: 'O',
     status: 'A',
     isEmailVerified: false,
     createdAt: new Date().getTime(),
     lastLoginAt: new Date().getTime(),
-    timeFormate: 12,
-    dateFormate: 'dd-mm-yyyy',
-    mode: 'D',
+    timeFormate: '12',
+    dateFormate: 'DD-MM-YYYY',
+    mode: 'L',
   };
   await userQueries.createUserQuery(MongoDB, { ...userData });
   removeKeyFromObj(userData, ['password', 'salt', 'createdAt', 'lastLoginAt']);
@@ -118,8 +117,6 @@ export const getUserDetail = async (req, res) => {
 export const refreshToken = (req, res) => {
   const token = (req.cookies && req.cookies.refreshToken) || req.body.token;
 
-  console.log({ cookies: req.cookies });
-
   if (!token)
     return res.status(401).json({ error: 'Re-Authentication required' });
 
@@ -144,9 +141,13 @@ export const logout = (req, res) => {
 
 export const updateUser = async (req, res) => {
   const dataToUpdate = req.validData;
-  const userdata = req.userData;
+  const userdata = { ...req.userData };
   const { userId } = userdata;
+  if (dataToUpdate.userData) {
+    delete dataToUpdate.userData;
+  }
   await userQueries.updateUserByCondition(
+    MongoDB,
     { userId },
     {
       ...dataToUpdate,
@@ -164,7 +165,8 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const userdata = req.userData;
   const { userId } = userdata;
-  await userQueries.updateUserByCondition({ userId });
+  await userQueries.deleteUserByCondition(MongoDB, { userId });
+  res.clearCookie('refreshToken', { path: '/refresh' });
   res.send({
     message: 'User Deleted SuccessFully',
     response: {
