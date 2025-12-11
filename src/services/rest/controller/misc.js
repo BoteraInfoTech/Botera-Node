@@ -210,7 +210,7 @@ export const uploadMedia = async (req, res) => {
     const busboy = Busboy({ headers: req.headers });
     let uploadPromise;
 
-    busboy.on('file', (file) => {
+    busboy.on('file', (fileName,file) => {
       let resourceType = 'auto';
       uploadPromise = new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
