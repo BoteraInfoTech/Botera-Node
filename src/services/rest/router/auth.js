@@ -1,7 +1,12 @@
 import express from 'express';
 import auth from '../middleware/auth';
-import { getAuthUrl, getAccountDetails } from '../controller/auth';
+import {
+  getAuthUrl,
+  getAccountDetails,
+  reconnectAccount,
+} from '../controller/auth';
 import { validAccountId, isCodeValid } from '../validator/auth';
+
 import { validatorError } from '../error';
 
 const router = express.Router();
@@ -20,4 +25,10 @@ router.get(
   getAccountDetails
 );
 
+router.get(
+  '/reconnect',
+  auth(['O']),
+  validatorError([validAccountId, isCodeValid]),
+  reconnectAccount
+);
 export default router;
