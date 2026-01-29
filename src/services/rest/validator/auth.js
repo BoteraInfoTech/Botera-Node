@@ -30,9 +30,11 @@ export const validAccountId = (req) => {
 export const isCodeValid = (req) => {
   const { accountId } = req.validData;
   const { code } = req.query;
+
   let error = null;
   switch (accountId) {
-    case 1: {
+    case 1:
+    case 2: {
       if (!code || typeof code !== 'string') {
         error = err('Authentication Failed Please Retry', 'code');
       }
@@ -45,6 +47,7 @@ export const isCodeValid = (req) => {
       break;
     }
   }
+
   if (error) {
     return error;
   }
