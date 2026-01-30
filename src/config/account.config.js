@@ -6,8 +6,8 @@ const accounts = [
     graphDomain: 'https://graph.facebook.com',
     redirectUri:
       process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account?id=1'
-        : 'https://botera.vercel.app/account?id=1',
+        ? 'http://localhost:3000/account'
+        : 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',
@@ -25,8 +25,8 @@ const accounts = [
     graphDomain: 'https://graph.facebook.com',
     redirectUri:
       process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account?id=2'
-        : 'https://botera.vercel.app/account?id=2',
+        ? 'http://localhost:3000/account'
+        : 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',
@@ -44,8 +44,8 @@ const accounts = [
     graphDomain: 'https://graph.facebook.com',
     redirectUri:
       process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account?id=3'
-        : 'https://botera.vercel.app/account?id=3',
+        ? 'http://localhost:3000/account'
+        : 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',
