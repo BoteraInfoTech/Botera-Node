@@ -9,21 +9,18 @@ import * as accountQueries from '../../../mongoDB/queries/account';
  * Fetches connectable account details by platform (same logic as getDetails).
  * Returns { accounts?, userAccessToken?, tokenData?, user?, allBusinessDetails? }.
  */
-export const fetchAccountDetailsByCode = async (accountId, code, from) => {
+export const fetchAccountDetailsByCode = async (accountId, code) => {
   const accountConfig = config.account;
   const settingData = await settingQueries.findDetailsById(MongoDB, accountId);
-  const isReconnect = from === 'reconnect';
   let data = {};
   switch (accountId) {
     case 1: {
       const configData = accountConfig.getAccountById(accountId);
       const APP_SECRET = decrypt(settingData.appSecrete);
       const APP_ID = decrypt(settingData.appId);
-      const tokenUrl = `${configData.graphDomain}/${configData.apiVersion}/oauth/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&redirect_uri=${
-        isReconnect
-          ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-          : encodeURIComponent(configData.redirectUri)
-      }&code=${code}`;
+      const tokenUrl = `${configData.graphDomain}/${configData.apiVersion}/oauth/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&redirect_uri=${encodeURIComponent(
+        configData.redirectUri
+      )}&code=${code}`;
       const tokenResp = await fetch(tokenUrl, { method: 'GET' });
       const tokenData = await tokenResp.json();
 
@@ -74,15 +71,12 @@ export const fetchAccountDetailsByCode = async (accountId, code, from) => {
         `${configData.graphDomain}/${configData.apiVersion}/oauth/access_token` +
         `?client_id=${APP_ID}` +
         `&client_secret=${APP_SECRET}` +
-        `&redirect_uri=${
-          isReconnect
-            ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-            : encodeURIComponent(configData.redirectUri)
-        }` +
+        `&redirect_uri=${encodeURIComponent(configData.redirectUri)}` +
         `&code=${code}`;
 
       const tokenResp = await fetch(tokenUrl);
       const tokenData = await tokenResp.json();
+      console.log({ tokenData });
 
       if (!tokenData.access_token) {
         throw new Error('Authentication failed. Please retry.');
@@ -121,11 +115,7 @@ export const fetchAccountDetailsByCode = async (accountId, code, from) => {
         `${configData.graphDomain}/${configData.apiVersion}/oauth/access_token` +
           `?client_id=${APP_ID}` +
           `&client_secret=${APP_SECRET}` +
-          `&redirect_uri=${
-            isReconnect
-              ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-              : encodeURIComponent(configData.redirectUri)
-          }` +
+          `&redirect_uri=${encodeURIComponent(configData.redirectUri)}` +
           `&code=${code}`
       );
       const tokenData = await tokenResp.json();
@@ -202,16 +192,20 @@ export const getAuthUrl = async (req, res) => {
       MongoDB,
       accountId
     );
+    const state = btoa(
+      JSON.stringify({
+        id: accountId,
+        ...(isReconnect ? { reconnect: true } : {}),
+      })
+    );
     switch (accountId) {
       case 1: {
         const configData = accountConfig.getAccountById(accountId);
         const APP_ID = decrypt(settingData.appId);
         const EMBEDDED_CONFIG_ID = decrypt(settingData.configId);
-        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${
-          isReconnect
-            ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-            : encodeURIComponent(configData.redirectUri)
-        }&config_id=${EMBEDDED_CONFIG_ID}&scope=${configData.scopes.join(',')}&response_type=${configData.responseType}`;
+        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${encodeURIComponent(
+          configData.redirectUri
+        )}&config_id=${EMBEDDED_CONFIG_ID}&scope=${configData.scopes.join(',')}&response_type=${configData.responseType}&state=${state}`;
         break;
       }
 
@@ -219,13 +213,11 @@ export const getAuthUrl = async (req, res) => {
         const configData = accountConfig.getAccountById(accountId);
         const APP_ID = decrypt(settingData.appId);
 
-        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${
-          isReconnect
-            ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-            : encodeURIComponent(configData.redirectUri)
-        }&scope=${configData.scopes.join(
+        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${encodeURIComponent(
+          configData.redirectUri
+        )}&scope=${configData.scopes.join(
           ','
-        )}&response_type=${configData.responseType}`;
+        )}&response_type=${configData.responseType}&state=${state}`;
 
         break;
       }
@@ -233,13 +225,11 @@ export const getAuthUrl = async (req, res) => {
         const configData = accountConfig.getAccountById(accountId);
         const APP_ID = decrypt(settingData.appId);
 
-        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${
-          isReconnect
-            ? encodeURIComponent(`${configData.redirectUri}&reconnect=true`)
-            : encodeURIComponent(configData.redirectUri)
-        }&scope=${configData.scopes.join(
+        url = `${configData.baseDomain}/${configData.apiVersion}/dialog/oauth?client_id=${APP_ID}&redirect_uri=${encodeURIComponent(
+          configData.redirectUri
+        )}&scope=${configData.scopes.join(
           ','
-        )}&response_type=${configData.responseType}`;
+        )}&response_type=${configData.responseType}&state=${state}`;
 
         break;
       }
@@ -268,7 +258,7 @@ export const reconnectAccount = async (req, res) => {
     if (!userId) {
       return res.status(400).json({ message: 'Invalid user' });
     }
-    const data = await fetchAccountDetailsByCode(accountId, code, 'reconnect');
+    const data = await fetchAccountDetailsByCode(accountId, code);
     const accounts = data?.accounts || [];
     if (!accounts.length) {
       return res.status(400).json({
