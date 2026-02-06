@@ -21,11 +21,13 @@ const accounts = [
     baseDomain: 'https://www.facebook.com',
     graphDomain: 'https://graph.facebook.com',
     redirectUri: 'https://botera.vercel.app/account',
-    apiVersion: 'v18.0',
+    apiVersion: 'v24.0',
     scopes: [
+      'pages_manage_metadata',
       'pages_show_list',
       'pages_read_user_content',
       'pages_messaging',
+      'pages_read_engagement',
       'public_profile',
     ],
     responseType: 'code',
@@ -37,7 +39,7 @@ const accounts = [
     baseDomain: 'https://www.facebook.com',
     graphDomain: 'https://graph.facebook.com',
     redirectUri: 'https://botera.vercel.app/account',
-    apiVersion: 'v18.0',
+    apiVersion: 'v24.0',
     scopes: [
       'pages_show_list',
       'instagram_basic',
