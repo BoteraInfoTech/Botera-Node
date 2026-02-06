@@ -4,10 +4,7 @@ const accounts = [
     accountId: 1,
     baseDomain: 'https://www.facebook.com',
     graphDomain: 'https://graph.facebook.com',
-    redirectUri:
-      process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account'
-        : 'https://botera.vercel.app/account',
+    redirectUri: 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',
@@ -23,10 +20,7 @@ const accounts = [
     accountId: 2,
     baseDomain: 'https://www.facebook.com',
     graphDomain: 'https://graph.facebook.com',
-    redirectUri:
-      process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account'
-        : 'https://botera.vercel.app/account',
+    redirectUri: 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',
@@ -42,10 +36,7 @@ const accounts = [
     accountId: 3,
     baseDomain: 'https://www.facebook.com',
     graphDomain: 'https://graph.facebook.com',
-    redirectUri:
-      process.env.ENVIRONMENT === 'development'
-        ? 'http://localhost:3000/account'
-        : 'https://botera.vercel.app/account',
+    redirectUri: 'https://botera.vercel.app/account',
     apiVersion: 'v18.0',
     scopes: [
       'pages_show_list',

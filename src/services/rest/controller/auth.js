@@ -4,6 +4,7 @@ import MongoDB from '../../../mongoDB';
 import { decrypt, encrypt } from '../../../utils/cryptoUtil';
 import * as settingQueries from '../../../mongoDB/queries/setting';
 import * as accountQueries from '../../../mongoDB/queries/account';
+import { subscribeFacebookPageWebhook } from './account';
 
 /**
  * Fetches connectable account details by platform (same logic as getDetails).
@@ -255,6 +256,8 @@ export const reconnectAccount = async (req, res) => {
   try {
     const { userId } = req.userData || {};
     const { code, accountId } = req.validData || {};
+    const accountConfig = config.account;
+
     if (!userId) {
       return res.status(400).json({ message: 'Invalid user' });
     }
@@ -265,15 +268,22 @@ export const reconnectAccount = async (req, res) => {
         message: 'No accounts to reconnect for this platform',
       });
     }
+
     const pageIds = accounts.map((a) => a.pageId).filter(Boolean);
     const existing = await accountQueries.findAccountsByPageIdsAndOwner(
       MongoDB,
       userId,
       pageIds
     );
+
+    const configData = accountConfig.getAccountById(accountId);
+    const apiVersion = configData.apiVersion || 'v24.0';
+    const isFacebookPage = Number(accountId) === 2;
+
     const existingByPageId = new Map(
       existing.map((a) => [String(a.pageId), a])
     );
+
     const promises = [];
     for (const acc of accounts) {
       if (!existingByPageId.has(String(acc.pageId))) continue;
@@ -287,9 +297,19 @@ export const reconnectAccount = async (req, res) => {
             profilePhoto: acc.profilePhoto,
             pageAccessToken: acc.pageAccessToken,
             category: acc.category,
+            status: 'H',
           }
         )
       );
+      if (isFacebookPage) {
+        promises.push(
+          subscribeFacebookPageWebhook({
+            pageId: acc.pageId,
+            pageAccessToken: acc.pageAccessToken,
+            apiVersion,
+          })
+        );
+      }
     }
     await Promise.allSettled(promises);
     return res.status(200).json({
