@@ -1,12 +1,60 @@
 import MongoDB from '../../../mongoDB';
 import * as accountQueries from '../../../mongoDB/queries/account';
 import config from '../../../config';
+import fetch from 'node-fetch';
+import { decrypt } from '../../../utils/cryptoUtil';
+
+export const subscribeFacebookPageWebhook = async ({
+  pageId,
+  pageAccessToken,
+  apiVersion,
+  subscribedFields = [
+    'messages',
+    'messaging_postbacks',
+    'message_reads',
+    'message_deliveries',
+  ],
+}) => {
+  try {
+    if (!pageId || !pageAccessToken) return null;
+
+    let accessToken = pageAccessToken;
+    try {
+      accessToken = decrypt(pageAccessToken);
+    } catch {
+      // token might already be plain (or invalid). We'll attempt as-is.
+    }
+
+    const url = new URL(
+      `https://graph.facebook.com/${apiVersion}/${pageId}/subscribed_apps`
+    );
+    url.searchParams.set('access_token', accessToken);
+    url.searchParams.set('subscribed_fields', subscribedFields.join(','));
+
+    const resp = await fetch(url.toString(), { method: 'POST' });
+
+    const json = await resp.json().catch(() => ({}));
+    if (!resp.ok || json?.error) {
+      const msg =
+        json?.error?.message || `Webhook subscribe failed (${resp.status})`;
+      throw new Error(msg);
+    }
+
+    return json;
+  } catch (e) {
+    // Best-effort: don't fail connect flow if webhook subscription fails.
+    console.warn('Webhook subscribe error', e?.message || e);
+    return null;
+  }
+};
 
 export const connectAccount = async (req, res) => {
   try {
     const { accounts = [], platformId } = req.body;
     const userData = req.userData;
     const existingByPageId = req.existingAccountsByPageId || new Map();
+    const isFacebookPage = Number(platformId) === 2;
+    const apiVersion = 'v23.0';
     const result = [];
     const promises = [];
     accounts.forEach((acc) => {
@@ -37,6 +85,16 @@ export const connectAccount = async (req, res) => {
         };
         promises.push(accountQueries.createAccountQuery(MongoDB, savedAccount));
         result.push(savedAccount);
+      }
+
+      if (isFacebookPage) {
+        promises.push(
+          subscribeFacebookPageWebhook({
+            pageId: acc.pageId,
+            pageAccessToken: acc.pageAccessToken,
+            apiVersion,
+          })
+        );
       }
     });
     await Promise.allSettled(promises);
